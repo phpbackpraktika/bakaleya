@@ -97,10 +97,10 @@ include_once 'db.php';
         echo "<h3>$message</h3>";
         if ($result && $result->num_rows > 0) {
           while ($row = $result->fetch_assoc()) {
-            echo "<p>Product ID: " . $row["id"] . "</p>";
-            echo "<p>Name: " . $row["name"] . "</p>";
-            echo "<p>Brand: " . $row["brand_name"] . "</p>";
-            echo "<p>Category: " . $row["category_name"] . "</p>";
+            echo "<p>Id: " . $row["id"] . "</p>";
+            echo "<p>Название: " . $row["name"] . "</p>";
+            echo "<p>Бренд: " . $row["brand_name"] . "</p>";
+            echo "<p>Категория: " . $row["category_name"] . "</p>";
             echo "<hr>";
           }
         } else {
