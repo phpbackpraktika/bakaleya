@@ -30,38 +30,90 @@ include_once 'db.php';
     </form>
   </div>
   <div class="container mt-5">
-    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="GET">
+    <form action="." method="GET">
+      <label for="searchInput">Поиск по названию товара</label>
       <input type="text" name="query">
       <button type="submit">Поиск</button>
     </form>
-    <?php
-    include_once 'db.php';
+ 
+     
+        <?php
+        include_once 'db.php';
 
-    if (isset($_GET['query'])) {
-      $searchQuery = $_GET['query'];
+        if (isset($_GET['query'])) {
+          $searchQuery = $_GET['query'];
 
-      $sql = "SELECT article, name, qty
+          $sql = "SELECT article, name, qty
             FROM products
             WHERE name LIKE '%$searchQuery%'
             ORDER BY qty DESC
             LIMIT 5";
 
-      $result = $conn->query($sql);
+          $result = $conn->query($sql);
 
-      if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-          echo "Article: " . $row["article"] . " - Name: " . $row["name"] . " - Quantity: " . $row["qty"] . "<br>";
+
+          if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+              echo "<p>Артикул: " . $row["article"] . "</p>";
+              echo "<p>Название: " . $row["name"] . "</p>";
+              echo "<p>Количество: " . $row["qty"] . "</p>" . "<br>";
+            }
+          } else {
+            echo "Нет результата";
+          }
+        } else {
+          echo "";
         }
-      } else {
-        echo "Нет результата";
-      }
-    } else {
-      echo "";
-    }
 
-    ?>
-
+        ?>
+    
+    
   </div>
+
+  <div class="container mt-5">
+    <form action="." method="GET">
+      <label for="searchInput">Поиск по категориям и брендам</label>
+      <input type="text" name="q">
+      <button type="submit">Поиск</button>
+    </form>
+    <?php
+
+    include_once 'db.php';
+
+    if (isset($_GET['q'])) {
+      $search_query = $_GET['q'];
+
+      // SQL запросы для поиска по категориям и брендам 
+      $sql_name_brand = "SELECT * 
+                       FROM products 
+                       WHERE MATCH (name, brand_name) AGAINST ('$search_query' IN NATURAL LANGUAGE MODE)";
+      $sql_name_category = "SELECT * 
+                          FROM products 
+                          WHERE MATCH (name, category_name) AGAINST ('$search_query' IN NATURAL LANGUAGE MODE)";
+
+      function executeSearch($conn, $query, $message)
+      {
+        $result = $conn->query($query);
+        echo "<h3>$message</h3>";
+        if ($result && $result->num_rows > 0) {
+          while ($row = $result->fetch_assoc()) {
+            echo "<p>Product ID: " . $row["id"] . "</p>";
+            echo "<p>Name: " . $row["name"] . "</p>";
+            echo "<p>Brand: " . $row["brand_name"] . "</p>";
+            echo "<p>Category: " . $row["category_name"] . "</p>";
+            echo "<hr>";
+          }
+        } else {
+          echo "<p>Нет данных</p>";
+        }
+      }
+
+      executeSearch($conn, $sql_name_brand, "Поиск по бренду");
+      executeSearch($conn, $sql_name_category, "Поиск по категории");
+    }
+    ?>
+  </div>
+
   <div class="container mt-5">
     <h2>Products</h2>
     <table class="table">
